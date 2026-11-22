@@ -1,0 +1,14 @@
+{
+  "name": "sayintel",
+  "description": "The sayintel plugin for Claude Code.",
+  "owner": {
+    "name": "sayintel"
+  },
+  "plugins": [
+    {
+      "name": "sayintel",
+      "source": "./",
+      "description": "Conference outbound from your agent: create a campaign from a conference URL, follow the run, review and curate drafts. Nothing sends from this plugin."
+    }
+  ]
+}

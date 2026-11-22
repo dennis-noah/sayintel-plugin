@@ -1,0 +1,25 @@
+{
+  "name": "sayintel",
+  "version": "1.0.0",
+  "description": "Conference outbound from your editor. Point sayintel at a conference page and it reads the speaker roster, qualifies people against your ICP and drafts a 3-message LinkedIn sequence per lead. Read and write only: nothing sends from this plugin.",
+  "author": {
+    "name": "sayintel"
+  },
+  "homepage": "https://sayintel.com/docs/mcp",
+  "repository": "https://github.com/dennis-noah/sayintel-plugin",
+  "license": "MIT",
+  "keywords": [
+    "sales",
+    "outbound",
+    "conferences",
+    "events",
+    "linkedin",
+    "lead-generation",
+    "mcp"
+  ],
+  "logo": "assets/logo.png",
+  "mcpServers": "./mcp.json",
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "rules": "./rules/"
+}
