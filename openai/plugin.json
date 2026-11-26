@@ -67,7 +67,7 @@
               "description": "Cost preview only. Setup: the test account has a sample conference speaker or agenda URL, and either no clients or a named own-company campaign. The reviewer has not agreed to start a paid run.",
               "prompt": "Preview the credit cost of running SayIntel on the sample conference speaker page for my own company. Do not start the paid run.",
               "tools_triggered": "whoami, create_campaign",
-              "expected_behavior": "The assistant calls whoami, then create_campaign once with dry_run true, the sample conference URL, and own_company true (or the client_id the reviewer already named). It shows cost_preview and stops. It does not call create_campaign again without dry_run."
+              "expected_behavior": "The assistant calls whoami, then create_campaign once with dry_run true, the sample conference URL, and own_company true (or the client_id the reviewer already named). It shows cost_preview and stops. Because cost_preview is zero before the roster is scraped, the assistant does not present it as the run's cost, and it does not call create_campaign again without dry_run or start_campaign_run without dry_run."
             },
             {
               "description": "Status of an existing campaign. Setup: the test account already has one sample campaign with a finished or in-progress run. No new campaign should be created.",

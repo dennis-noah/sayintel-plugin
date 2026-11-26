@@ -11,7 +11,7 @@ SayIntel reads a conference speaker list, qualifies each person against an ICP, 
 
 - Read and write only. You can create campaigns, follow runs, read people and drafts, edit drafts, ask for rewrites, and select people.
 - Nothing sends from this connection. `push_approved` and `approve_fits_and_clean_drafts` need a send-scoped token that only the account owner mints in SayIntel, and a person still arms the campaign. On a campaign with auto-push armed, `approve_message` is an outbound send too, so it is refused here. Do not try to work around a refusal. Tell the user that sending happens in SayIntel itself.
-- Some calls spend credits. `create_campaign` starts a paid pipeline, and `brief_person` spends 1 credit per person. Say so before calling them, and use `create_campaign` with `dry_run: true` first when the user has not seen a cost. Check `get_credit_balance` when in doubt.
+- Some calls spend credits. `start_campaign_run` starts a paid pipeline, and `brief_person` spends 1 credit per person. Say so before calling them. Use `start_campaign_run` with `dry_run: true` first when the user has not seen a cost. A `create_campaign` dry run returns a zero `cost_preview` until the roster is scraped, so it cannot be used as the run's cost. Check `get_credit_balance` when in doubt.
 
 ## Every response is the same envelope
 
