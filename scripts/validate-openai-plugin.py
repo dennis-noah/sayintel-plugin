@@ -2,7 +2,7 @@
 """Validate the OpenAI plugin package under openai/ and build its ZIP.
 
 This is the local stand-in for Plugin Creator's prepare-plugin-submission
-checks: Agent Plugins 1.0 schemas, the listing limits in
+checks: Agent Plugins 1.0 schemas pinned in scripts/schemas/, the listing limits in
 https://developers.openai.com/plugins/deploy/submission, and the archive
 rules from that skill. It does not upload the package or connect the MCP server.
 """
@@ -10,6 +10,7 @@ rules from that skill. It does not upload the package or connect the MCP server.
 from __future__ import annotations
 
 import json
+import os
 import re
 import struct
 import sys
@@ -20,7 +21,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "openai"
-SCHEMA_DIR = Path("/tmp")
+SCHEMA_DIR = ROOT / "scripts" / "schemas"
 ZIP_PATH = ROOT / "dist" / "sayintel-openai-plugin-1.0.0.zip"
 
 CATEGORIES = {
@@ -71,10 +72,18 @@ def load_json(path: Path) -> dict:
 
 def fetch_schema(name: str) -> dict:
     path = SCHEMA_DIR / name
-    if not path.exists():
-        url = f"https://agent-plugins.org/schemas/1.0.0/{name}"
-        urllib.request.urlretrieve(url, path)
-    return json.loads(path.read_text(encoding="utf-8"))
+    if not path.is_file():
+        fail(f"pinned schema is missing: scripts/schemas/{name}")
+        return {}
+    try:
+        schema = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        fail(f"pinned schema {name} is not valid JSON: {exc}")
+        return {}
+    expected_id = f"https://agent-plugins.org/schemas/1.0.0/{name}"
+    if schema.get("$id") != expected_id:
+        fail(f"pinned schema {name} has $id {schema.get('$id')!r}, expected {expected_id}")
+    return schema
 
 
 def validate_schema(instance: dict, schema: dict, label: str) -> None:
@@ -389,24 +398,37 @@ def scan_tree() -> None:
 
 
 def build_zip() -> None:
+    if failures:
+        print("ZIP not rebuilt; the last archive was left in place")
+        return
     ZIP_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if ZIP_PATH.exists():
-        ZIP_PATH.unlink()
-    with zipfile.ZipFile(ZIP_PATH, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+    partial = ZIP_PATH.with_suffix(".zip.partial")
+    if partial.exists():
+        partial.unlink()
+    with zipfile.ZipFile(partial, "w", compression=zipfile.ZIP_DEFLATED) as archive:
         for path in sorted(PLUGIN.rglob("*")):
             if not path.is_file():
                 continue
             if path.name.startswith(".") or path.suffix == ".zip":
                 continue
             archive.write(path, path.relative_to(PLUGIN).as_posix())
-    with zipfile.ZipFile(ZIP_PATH) as archive:
+    with zipfile.ZipFile(partial) as archive:
         names = archive.namelist()
+    inventory_ok = True
     if "plugin.json" not in names or "mcp.json" not in names:
         fail("ZIP root is missing plugin.json or mcp.json")
+        inventory_ok = False
     if any(name.startswith("/") or ".." in name.split("/") for name in names):
         fail("ZIP contains unsafe paths")
+        inventory_ok = False
     if any(name.endswith(".app.json") or "/apps" in name for name in names):
         fail("ZIP contains an app binding")
+        inventory_ok = False
+    if not inventory_ok:
+        partial.unlink()
+        print("ZIP not replaced; the last archive was left in place")
+        return
+    os.replace(partial, ZIP_PATH)
     print(f"ZIP {ZIP_PATH.relative_to(ROOT)} ({ZIP_PATH.stat().st_size} bytes)")
     for name in names:
         print(f"  {name}")

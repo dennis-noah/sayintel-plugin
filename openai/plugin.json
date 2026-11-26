@@ -64,10 +64,10 @@
               "expected_behavior": "The assistant calls whoami and reports the account, its scopes, and each client id and name from data. It does not create a campaign or spend credits. The tool response is the { ok, tool, kind, data, error } envelope."
             },
             {
-              "description": "Cost preview only. Setup: the test account has a sample conference speaker or agenda URL, and either no clients or a named own-company campaign. The reviewer has not agreed to start a paid run.",
-              "prompt": "Preview the credit cost of running SayIntel on the sample conference speaker page for my own company. Do not start the paid run.",
+              "description": "Cost preview only. The URL below is a stand-in so the prompt contains a page; substitute the test account's speaker page before a live run. The reviewer has not agreed to create a campaign or start a paid run. https://example.com/speakers is not fetched by a dry run.",
+              "prompt": "Preview the credit cost of running SayIntel on https://example.com/speakers. If this account has clients, the campaign is for my own company. Do not create the campaign and do not start a paid run.",
               "tools_triggered": "whoami, create_campaign",
-              "expected_behavior": "The assistant calls whoami, then create_campaign once with dry_run true, the sample conference URL, and own_company true (or the client_id the reviewer already named). It shows cost_preview and stops. It does not call create_campaign again without dry_run."
+              "expected_behavior": "The assistant calls whoami, then create_campaign once with dry_run true and conference_url https://example.com/speakers. It passes own_company true only when whoami lists clients. When whoami lists no clients, it passes neither client_id nor own_company. It says credits_estimated 0 is because the roster is not scraped yet, and that this is not the enrichment cost. It does not call create_campaign without dry_run and does not call start_campaign_run."
             },
             {
               "description": "Status of an existing campaign. Setup: the test account already has one sample campaign with a finished or in-progress run. No new campaign should be created.",
@@ -82,10 +82,10 @@
               "expected_behavior": "The assistant calls get_draft_qa with only_failing true and follows next_cursor while has_more is true. It summarizes how many sequences need a rewrite, how many need a person, and the fail codes with their fix hints. It does not call approve_message, approve_fits_and_clean_drafts, or push_approved."
             },
             {
-              "description": "Meeting brief after an explicit yes. Setup: the reviewer has already agreed to spend 1 credit, and the test account has one sample person with a full name plus a company or LinkedIn URL. This case starts after that yes.",
-              "prompt": "Yes, spend the one credit and brief me on the sample lead before our meeting.",
+              "description": "Meeting brief after an explicit yes. The person below is named in the prompt so the case can run without an earlier turn. Substitute a person from the test account when one exists. The ready email to the account owner stays off.",
+              "prompt": "Yes, spend the one credit and brief me on Ada Lovelace at Analytical Engines before our meeting. Do not email me when the brief is ready.",
               "tools_triggered": "whoami, brief_person, get_meeting_brief",
-              "expected_behavior": "The assistant calls brief_person with the person's name and company, LinkedIn URL, or speaker_id, then polls get_meeting_brief until the brief is ready. It presents public statements, the company now, watch-outs, and three questions, and keeps the source links. It does not add facts the brief does not contain."
+              "expected_behavior": "The assistant calls brief_person with name Ada Lovelace, company Analytical Engines, and email_when_ready false. It polls get_meeting_brief only while status is queued or researching. On failed, it stops and reports error. On ready, it presents the sourced brief and does not add claims the brief does not contain. It does not send outreach."
             }
           ],
           "negative": [
