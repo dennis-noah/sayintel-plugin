@@ -84,3 +84,54 @@ Docs: https://sayintel.com/docs/mcp. Privacy: https://sayintel.com/privacy. Term
 ## License
 
 MIT. See `LICENSE`.
+
+## Install in Hermes Agent
+
+Hermes can load this package as a portable Agent Plugin (root `plugin.json`
++ `mcp.json` + `skills/`). From a checkout, or once it is in the Hermes
+plugin catalog:
+
+```bash
+# from GitHub, then enable it (portable packages start disabled)
+hermes plugins install dennis-noah/sayintel-plugin --no-enable
+hermes plugins enable sayintel
+
+# once the catalog entry is merged:
+# hermes plugins install sayintel
+# hermes plugins enable sayintel
+```
+
+Then sign in to the hosted MCP server:
+
+```bash
+hermes mcp login sayintel
+```
+
+Or add this to `~/.hermes/config.yaml` (a same-name `config.yaml` entry
+wins over the package's `mcp.json`):
+
+```yaml
+mcp_servers:
+  sayintel:
+    url: "https://sayintel.com/mcp"
+    auth: oauth
+```
+
+The package marks the server `trust: untrusted`, so Hermes asks before
+every write-capable tool (anything not annotated `readOnlyHint: true`).
+That is deliberate: write tools can spend credits and change campaigns.
+They still cannot send.
+
+You can also install only the skill, without the plugin package:
+
+```bash
+hermes skills install dennis-noah/sayintel-plugin/skills/sayintel
+```
+
+### Headless / cron
+
+Browser OAuth cannot complete in cron or the messaging gateway. Use the
+bearer door in your own `mcp_servers` config with `SAYINTEL_TOKEN` in the
+profile `.env`. Do not put a token in this repository. See
+https://sayintel.com/docs/mcp.
+
