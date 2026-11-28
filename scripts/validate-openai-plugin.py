@@ -9,6 +9,7 @@ rules from that skill. It does not upload the package or connect the MCP server.
 
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
@@ -372,16 +373,78 @@ def check_mcp(mcp: dict) -> None:
         fail("baseScopes must be openid and email, matching the authorization server")
     if "clientSecret" in json.dumps(mcp):
         fail("mcp.json must not contain a client secret")
-    # The published Agent Plugins schema does not list extensions yet.
-    # Validate the transport against that schema, then keep the OpenAI auth object.
+    extra = set(server) - {"type", "url", "extensions"}
+    if extra:
+        fail(f"sayintel server has fields the submission overlay does not allow: {sorted(extra)}")
+    if set(server.get("extensions", {})) != {"com.openai"}:
+        fail("server extensions must contain only com.openai")
     schema = fetch_schema("mcp.schema.json")
-    transport = {
-        "$schema": mcp["$schema"],
-        "mcpServers": {
-            "sayintel": {"type": server["type"], "url": server["url"]}
+    if not schema:
+        return
+    # The published schema closes the server object. OpenAI's submission guide
+    # still requires extensions.com.openai.auth, and there is no other field
+    # for it. Validate the real mcp.json against that schema plus this overlay.
+    published_errors = schema_errors(mcp, schema)
+    if not published_errors:
+        fail("published MCP schema now accepts server extensions; remove the auth overlay")
+    elif not any("extensions" in err.path or "extensions" in err.message for err in published_errors):
+        where = "; ".join(err.message for err in published_errors)
+        fail(f"published MCP schema rejected mcp.json for a reason other than extensions: {where}")
+    else:
+        gap(
+            "The published Agent Plugins MCP schema rejects server.extensions (additionalProperties is false). "
+            "The submission guide requires extensions.com.openai.auth for this protected server, and the portal has no other place to read it. "
+            "The ZIP keeps that object. This script validates the real mcp.json against the published schema plus that one overlay."
+        )
+    validate_schema(mcp, submission_mcp_schema(schema), "mcp.json")
+
+
+def schema_errors(instance: dict, schema: dict) -> list:
+    try:
+        import jsonschema
+    except ImportError:
+        fail("jsonschema is not installed; schema validation did not run")
+        return []
+    validator = jsonschema.Draft202012Validator(schema)
+    return list(validator.iter_errors(instance))
+
+
+def submission_mcp_schema(schema: dict) -> dict:
+    overlay = copy.deepcopy(schema)
+    http = overlay["$defs"]["streamableHttpServer"]
+    http["properties"]["extensions"] = {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["com.openai"],
+        "properties": {
+            "com.openai": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["auth"],
+                "properties": {
+                    "auth": {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["type", "client", "baseScopes"],
+                        "properties": {
+                            "type": {"const": "oauth"},
+                            "client": {
+                                "type": "object",
+                                "additionalProperties": False,
+                                "required": ["mode"],
+                                "properties": {"mode": {"const": "dcr"}},
+                            },
+                            "baseScopes": {
+                                "type": "array",
+                                "items": {"type": "string"},
+                            },
+                        },
+                    }
+                },
+            }
         },
     }
-    validate_schema(transport, schema, "mcp.json transport")
+    return overlay
 
 
 def check_repo_root() -> None:

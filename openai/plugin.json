@@ -24,7 +24,7 @@
       "interface": {
         "displayName": "Sayintel",
         "shortDescription": "Conference outbound drafts",
-        "longDescription": "Conference outbound: speaker list, ICP match, and 3-message LinkedIn drafts a person approves.\n\nSayintel reads a conference speaker or agenda page, qualifies each person against your ICP, and drafts a three-message LinkedIn sequence for each lead. You review the drafts in chat, ask for rewrites, and edit lines that need a human. Nothing is sent from this plugin. Approving a send, and arming the campaign, stay with a person in Sayintel.\n\nIt is for B2B teams running conference outbound. Creating a campaign and briefing a person spend credits on your Sayintel account. The plugin shows the cost and waits for a yes. On an account with clients, it asks which client a campaign is for and does not carry one client's pitch, people, or wording into another's.\n\nDocs: https://sayintel.com/docs/mcp\n\nDone for you by NoBooth.",
+        "longDescription": "Conference outbound: speaker list, ICP match, and 3-message LinkedIn drafts a person approves.\n\nSayintel reads a conference speaker or agenda page, qualifies each person against your ICP, and drafts a three-message LinkedIn sequence for each lead. You review the drafts in chat, ask for rewrites, and edit lines that need a human. Nothing is sent from this plugin. Approving a send, and arming the campaign, stay with a person in Sayintel.\n\nIt is for B2B teams running conference outbound. Creating a campaign and scraping the speaker list cost nothing. Starting the enrichment run and briefing a person spend credits on your Sayintel account. The plugin shows that cost and waits for a yes. On an account with clients, it asks which client a campaign is for and does not carry one client's pitch, people, or wording into another's.\n\nDocs: https://sayintel.com/docs/mcp\n\nDone for you by NoBooth.",
         "developerName": "Sayintel",
         "category": "Business & Operations",
         "capabilities": [
@@ -47,7 +47,7 @@
       },
       "review": {
         "commerce": false,
-        "commerce_description": "This plugin does not take payment. Creating a campaign and briefing a person spend credits on an existing Sayintel account. Plans are sold on https://sayintel.com/pricing, outside this plugin.",
+        "commerce_description": "This plugin does not take payment. Creating a campaign and scraping its speaker list cost nothing. Starting the enrichment run and briefing a person spend credits on an existing Sayintel account. Plans are sold on https://sayintel.com/pricing, outside this plugin.",
         "prompts": [
           "Turn this conference speaker page into ICP-matched LinkedIn drafts I can review.",
           "Preview the credit cost of a campaign for my own company, and do not start it yet.",
