@@ -1,0 +1,33 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "sayintel",
+  "version": "1.0.0",
+  "description": "Conference outbound from your agent. Point Sayintel at a conference page and it reads the speaker roster, qualifies people against your ICP and drafts a 3-message LinkedIn sequence per lead. Read and write only: nothing sends from this plugin.",
+  "author": {
+    "name": "Sayintel",
+    "url": "https://sayintel.com",
+    "email": "dennis@theonemile.com"
+  },
+  "homepage": "https://sayintel.com/docs/mcp",
+  "keywords": [
+    "sayintel",
+    "conference",
+    "outbound",
+    "sales",
+    "speakers",
+    "campaigns",
+    "mcp"
+  ],
+  "repository": "https://github.com/dennis-noah/sayintel-plugin",
+  "license": "MIT",
+  "logo": "assets/logo.png",
+  "extensions": {
+    "com.nousresearch.hermes": {
+      "servers": {
+        "sayintel": {
+          "trust": "untrusted"
+        }
+      }
+    }
+  }
+}
